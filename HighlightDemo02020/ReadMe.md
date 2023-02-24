@@ -8,6 +8,6 @@
 
 - Capture the user click activities and store it into extension storage
 
-- Store the user email and password into extension storage.
+- Store the user email and password into extension storage, push user's click activity into database.
 
 - If users did not login in, they can not access to highlight function.
