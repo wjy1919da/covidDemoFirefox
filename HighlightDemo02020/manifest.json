@@ -51,7 +51,9 @@
 	"permissions": [
 		"tabs",
 		"webNavigation",
-        "storage"
+        "storage",
+		"webRequest",
+		"<all_urls>"	
 	],
 	"short_name": "myHighlighter",
 	"version": "1.1.0"

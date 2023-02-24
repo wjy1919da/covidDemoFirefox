@@ -1,3 +1,70 @@
+///// let's try connect with mongodb database
+let email;
+
+function insertdata(uid)
+{
+  //var insert_date=  new Date();
+  fetch("https://redditchrome.herokuapp.com/api/insert", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      
+      userid: uid,
+      user_action_onReddit:[],
+      browser_history:[]
+    })
+  })
+  .then(response => {
+    if (response.ok) {
+      return response.json();
+    } else {
+      throw new Error("Failed to insert data");
+    }
+  })
+  .then(data => {
+    console.log("Data inserted successfully:", data);
+  })
+  .catch(error => {
+    console.error(error);
+  });
+  
+}
+
+// insert user action into db
+function insertUserAction(uid, action, target,action_date) {
+	//const insert_date = new Date();
+	console.log("uid: ",uid,"action: ",action,"target: ",target,"action_date: ",action_date)
+	fetch("https://redditchrome.herokuapp.com/api/updateUserAction", {
+	  method: "POST",
+	  headers: {
+		"Content-Type": "application/json"
+	  },
+	  body: JSON.stringify({
+		userid: uid,
+		user_action_onReddit: [{
+		  action_date: action_date,
+		  user_action: action,
+		  action_target: target
+		}]
+	  })
+	})
+	.then(response => {
+	  if (response.ok) {
+		return response.json();
+	  } else {
+		throw new Error("Failed to insert user action");
+	  }
+	})
+	.then(data => {
+	  console.log("User action inserted successfully:", data);
+	})
+	.catch(error => {
+	  console.error(error);
+	});
+  }
+
 function getKey(item){
 	console.log(item.isHighLight)
 }
@@ -10,7 +77,7 @@ function loadStorage(key){
 	browser.storage.local.get(key).then(getAuth, onError);
 }
 // fake keywords list
-keywords = ["Wednesdays","What","Accessibility","Latest","dynamite"]
+keywords = ["Wednesdays","What","Accessibility","Latest","dynamite","covid","Mask"]
 
 // Inject the content script into the active tab of the current window
 try{
@@ -48,10 +115,11 @@ browser.runtime.onMessage.addListener(function(request, sender) {
 				);
 			}
 		);
+		insertdata("1234")
 	}
 // Auth
 	if ('EmailAuth' === request.message) {
-		let email = request.email;
+		email = request.email;
 		let password = request.password;
 		try {
 			browser.storage.local.set(
@@ -92,13 +160,13 @@ browser.runtime.onMessage.addListener(function(request, sender) {
 // listen the content data from content script
 browser.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 	if (request.type === 'arrayAnalyText') {
-	  console.log("request data of text content",request.data);
+	  //console.log("request data of text content",request.data);
 	  sendResponse({ status: 'success' });
 	  // Do something with the data
 	  let TextContentList = request.data;
-	  TextContentList.forEach(element => {
-		console.log("background list: ",element);
-	 });
+	//   TextContentList.forEach(element => {
+	// 	console.log("background list: ",element);
+	//  });
 	 // send back to content script
 	 try{
 		  chrome.tabs.query(
@@ -129,13 +197,18 @@ browser.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		console.log("userClickActivity data of text content",request.data);
 		sendResponse({ status: 'success' });
 		let userActities = request.data;
-		userActities.forEach(element => {
-		  console.log("userActities background list: ",element);
-	   });
+		
 	   try{
-		// set user acitities into extension storage
-		browser.storage.local.set({ userActities });
-
+		browser.storage.local.get('email').then(result => {	
+			email = result.email;
+			console.log("email is: ",email)
+			// set user acitities into extension storage
+			browser.storage.local.set({ userActities });
+			userActities.forEach(element => {
+				console.log("userActities background list: ",element);
+				insertUserAction(email,element.action,element.element,element.time)
+			});
+		});
 	   }catch(error){
 			console.log("set actities error",error)
 			return;
@@ -160,6 +233,7 @@ if ('showOccurrences' === request.message) {
 browser.storage.local.get('email').then(result => {
 	console.log("background start set auth.....")
     const getEmail = result.email;
+	email = result.email;
     console.log("background get email: ",getEmail)
 	let auth = false;
 	let authString = auth.toString();
