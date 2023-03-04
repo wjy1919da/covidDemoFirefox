@@ -1,0 +1,60 @@
+{
+	"applications": {
+		"gecko": {
+			"id": "{356ecbb5-8ec8-48b0-a835-8eb8288e3288}",
+			"strict_min_version": "52.0"
+		}
+	},
+	"author": "www",
+	"background": {
+		"scripts": [
+			"background/background.js"
+			
+		]
+	},
+	"browser_action": {
+		"browser_style": true,
+		"default_icon": "img/Highlight.svg",
+		"default_popup": "popup/popup.html",
+		"default_title": "Highlighter"
+	},
+	"content_scripts": [
+		{
+			"css": [
+				"css/content.css"
+			],
+			"js": [
+				"content_script/content-script.js"
+			],
+			"matches": [
+				"http://*/*",
+				"https://*/*"
+			],
+			"run_at": "document_end"
+		}
+	],
+	"icons": {
+		"16": "img/Highlight.svg",
+		"19": "img/Highlight.svg",
+		"24": "img/Highlight.svg",
+		"32": "img/Highlight.svg",
+		"38": "img/Highlight.svg",
+		"48": "img/Highlight.svg",
+		"64": "img/Highlight.svg",
+		"72": "img/Highlight.svg",
+		"96": "img/Highlight.svg",
+		"128": "img/Highlight.svg",
+		"256": "img/Highlight.svg"
+	},
+	"manifest_version": 2,
+	"name": "myHighlighter",
+	"permissions": [
+		"tabs",
+		"webNavigation",
+        "storage",
+		"webRequest",
+		"<all_urls>"	
+	],
+	"short_name": "myHighlighter",
+	"version": "1.1.0"
+}
